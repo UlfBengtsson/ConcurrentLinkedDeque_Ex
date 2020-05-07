@@ -1,13 +1,34 @@
 package org.example;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+import org.example.task.AddTask;
+import org.example.task.MinTask;
+import org.example.task.RemoveTask;
+import org.example.task.SecondsTask;
+
+import java.util.concurrent.*;
 
 public class App
 {
     public static void main( String[] args )
     {
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
+        MinTask minTask = new MinTask();
+        SecondsTask secTask = new SecondsTask();
 
+        Future<?> minThread = service.scheduleAtFixedRate(minTask, 0, 1, TimeUnit.MINUTES);
+        Future<?> secThread = service.scheduleAtFixedRate(secTask, 0, 1, TimeUnit.SECONDS);
+
+        try {
+            Thread.sleep(62000); //main thread sleeps, not our Seconds thread.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        minThread.cancel(true);
+        secThread.cancel(true);
+
+        service.shutdownNow();
     }
 
 
